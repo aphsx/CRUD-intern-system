@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import { MagnifyingGlassIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
+import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 
 // Table Headers
 const TABLE_HEAD = [
@@ -29,6 +29,8 @@ const Table = () => {
   }
 
   const [internships, setInternships] = useState<Internship[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Set number of items per page
 
   // Fetch data from the backend
   useEffect(() => {
@@ -37,6 +39,16 @@ const Table = () => {
       .then(data => setInternships(data))
       .catch(error => console.error('Error fetching data:', error));
   }, []);
+
+  // Get current internships for pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInternships = internships.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(internships.length / itemsPerPage);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <Card className="h-full w-full max-w-6xl mx-auto dark:bg-[#161A1D] dark:text-white" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
@@ -51,7 +63,7 @@ const Table = () => {
             </Typography>
           </div>
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-            <Button size="sm" className="flex items-center gap-3" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+            <Button size="sm" className="flex items-center gap-3"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
               Add Profile
             </Button>
           </div>
@@ -75,7 +87,7 @@ const Table = () => {
             </tr>
           </thead>
           <tbody>
-            {internships.map((internship, index) => (
+            {currentInternships.map((internship, index) => (
               <tr key={index}>
                 <td className="p-4">
                   <Typography variant="small" color="blue-gray" className="font-normal">
@@ -85,12 +97,12 @@ const Table = () => {
                 <td className="p-4">{internship.position}</td>
                 <td className="p-4">{internship.register_date}</td>
                 <td className="p-4">
-                  <Tooltip content="Edit"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+                  <Tooltip content="Edit" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                     <IconButton variant="text"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                       <PencilIcon className="h-4 w-4" />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip content="Delete"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+                  <Tooltip content="Delete" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                     <IconButton variant="text" onClick={() => console.log('Delete action triggered')}  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                       <TrashIcon className="h-4 w-4" />
                     </IconButton>
@@ -103,11 +115,23 @@ const Table = () => {
       </CardBody>
       <CardFooter className="flex items-center justify-between p-4"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
         <Typography variant="small" color="blue-gray" className="font-normal">
-          Page 1 of 1
+          Page {currentPage} of {totalPages}
         </Typography>
         <div className="flex gap-2">
-          <Button variant="outlined" size="sm" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>Previous</Button>
-          <Button variant="outlined" size="sm"  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>Next</Button>
+          <Button
+            variant="outlined"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => paginate(currentPage - 1)}  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}          >
+            Previous
+          </Button>
+          <Button
+            variant="outlined"
+            size="sm"
+            disabled={currentPage === totalPages}
+            onClick={() => paginate(currentPage + 1)}  placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}          >
+            Next
+          </Button>
         </div>
       </CardFooter>
     </Card>

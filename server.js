@@ -46,6 +46,18 @@ app.put('/profile/:id', (req, res) => {
   });
 });
 
+app.get('/students', (req, res) => {
+  const sqlQuery = 'SELECT first_name, last_name, position, register_date FROM students';
+  db.query(sqlQuery, (err, result) => {
+    if (err) {
+      res.send({ error: err });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
